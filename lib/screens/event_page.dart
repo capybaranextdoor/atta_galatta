@@ -20,6 +20,8 @@ class _EventsPageState extends State<EventsPage> {
     events = apiService.fetchEvents(startDate: startDate, endDate: endDate);
   }
 
+
+
   void _selectDateRange() async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
