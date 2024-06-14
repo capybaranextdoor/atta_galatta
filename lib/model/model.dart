@@ -1,5 +1,3 @@
-// models/event.dart
-
 class Author {
   final String name;
 
@@ -22,6 +20,7 @@ class Event {
   final String startTime;
   final String endTime;
   final String description;
+  final String? registrationLink;
 
   Event({
     required this.id,
@@ -33,22 +32,28 @@ class Event {
     required this.startTime,
     required this.endTime,
     required this.description,
+    this.registrationLink,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     var authorsFromJson = json['Author_HostName'] as List;
-    List<Author> authorList = authorsFromJson.map((author) => Author.fromJson(author)).toList();
+    List<Author> authorList = authorsFromJson.map((author) => Author.fromJson(author as Map<String, dynamic>)).toList();
+
+    // Construct the full image URL
+    String baseUrl = 'https://attagalatta.com/admin/uploads/events/';
+    String fullImageUrl = baseUrl + json['EventImage'];
 
     return Event(
       id: json['EventID'],
       title: json['EventTitle'],
       subTitle: json['EventSubTitle'],
       authors: authorList,
-      imageUrl: 'https://attagalatta.com/images/${json['EventImage']}',
+      imageUrl: fullImageUrl, // Use the full URL for the image
       eventDay: DateTime.parse(json['EventDay']),
       startTime: json['EventStartTime'],
       endTime: json['EventEndTime'],
       description: json['EventContentDescription'],
+      registrationLink: json['RegsiterLink1'],
     );
   }
 }

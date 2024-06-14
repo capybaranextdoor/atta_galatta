@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -9,7 +11,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacementNamed(context, '/events');
     });
   }
@@ -20,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: const Color(0xFF242E3B),
       body: Center(
         child: Image.asset(
-          'assets/logo3.png',
+          'assets/logo.png',
           width: 100,
           height: 100,
         ),
