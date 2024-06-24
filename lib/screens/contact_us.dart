@@ -1,10 +1,12 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ContactUsPage extends StatelessWidget {
-  const ContactUsPage({super.key});
+  const ContactUsPage({Key? key}) : super(key: key);
 
   void _launchURL(String url) async {
     if (await canLaunch(url)) {
@@ -18,17 +20,17 @@ class ContactUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help & Support'),
+        title: const Text('Contact Us'),
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             ContactCard(
               icon: FontAwesomeIcons.whatsapp,
               label: 'WhatsApp',
-              contactInfo: '+1234567890',  // Replace with your phone number
-              url: 'https://wa.me/11234567890',  // Replace with your phone number in the correct format
+              contactInfo: '+1234567890',
+              url: 'https://wa.me/1234567890',
             ),
             ContactCard(
               icon: Icons.phone,
@@ -39,14 +41,8 @@ class ContactUsPage extends StatelessWidget {
             ContactCard(
               icon: FontAwesomeIcons.instagram,
               label: 'Instagram',
-              contactInfo: '@attagalatta',  // Replace with your Instagram username
-              url: 'https://www.instagram.com/attagalatta/',  // Replace with your Instagram profile URL
-            ),
-            ContactCard(
-              icon: Icons.email,
-              label: 'Email',
-              contactInfo: 'info@attagalatta.com',
-              url: 'mailto:info@attagalatta.com',
+              contactInfo: '@attagalatta',
+              url: 'https://www.instagram.com/attagalatta?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==',
             ),
           ],
         ),
@@ -62,12 +58,12 @@ class ContactCard extends StatelessWidget {
   final String url;
 
   const ContactCard({
-    super.key,
+    Key? key,
     required this.icon,
     required this.label,
     required this.contactInfo,
     required this.url,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +84,7 @@ class ContactCard extends StatelessWidget {
               Icon(
                 icon,
                 size: 40,
-                color: const Color(0xFF9C4F2E),
+                color: Colors.blue,
               ),
               const SizedBox(width: 20.0),
               Column(

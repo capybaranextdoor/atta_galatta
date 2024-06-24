@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import '../model/model.dart';
 import '../services/api_services.dart';
 import '../widgets/event_card.dart';
-import 'event_details.dart';
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({super.key});
-
   @override
   _EventsPageState createState() => _EventsPageState();
 }
@@ -14,167 +11,64 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   final ApiService apiService = ApiService();
   late Future<List<Event>> events;
-  DateTime selectedDate = DateTime(2024, 5, 1);
+  DateTime startDate = DateTime(2024, 5, 1);
+  DateTime endDate = DateTime(2024, 5, 31);
 
   @override
   void initState() {
     super.initState();
-    // Call fetchEvents function with selectedDate
-    events = apiService.fetchEvents(date: selectedDate);
+    events = apiService.fetchEvents(startDate: startDate, endDate: endDate);
   }
 
-  void _selectDate() async {
-    final DateTime? picked = await showDatePicker(
+
+
+  void _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
       context: context,
-      initialDate: selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2026),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF9C4F2E), // Header background color
-              onPrimary: Colors.white, // Header text color
-              surface: Colors.white, // Selected date background color
-              onSurface: Colors.black, // Selected date text color
-            ),
-            dialogBackgroundColor:
-                Colors.white, // Background color of the date picker dialog
-          ),
-          child: child!,
-        );
-      },
+      initialDateRange: DateTimeRange(start: startDate, end: endDate),
     );
-    if (picked != null && picked != selectedDate) {
+    if (picked != null && picked != DateTimeRange(start: startDate, end: endDate)) {
       setState(() {
-        selectedDate = picked;
-        // Call fetchEvents function with updated selectedDate
-        events = apiService.fetchEvents(date: selectedDate);
+        startDate = picked.start;
+        endDate = picked.end;
+        events = apiService.fetchEvents(startDate: startDate, endDate: endDate);
       });
     }
-  }
-
-  Future<void> _refreshEvents() async {
-    setState(() {
-      // Reset the events Future to trigger refetching of events
-      events = apiService.fetchEvents(date: selectedDate);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF9C4F2E),
-        title: const Text(
-          'Events',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text('Events'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: _selectDate,
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Implement search functionality
-            },
+            icon: Icon(Icons.calendar_today),
+            onPressed: _selectDateRange,
           ),
         ],
       ),
-      drawer: Drawer(
-        child: Container(
-          color: const Color(0xff242E3B),
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Color(0xFF9C4F2E),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                child: Text(
-                  'ATTA GALATTA',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.info,
-                  color: Colors.white,
-                ),
-                title: const Text(
-                  'About Us',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/about-us');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.contact_mail,
-                  color: Colors.white,
-                ),
-                title: const Text(
-                  'Contact Us',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/contact-us');
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: RefreshIndicator(
-        // Wrap your ListView.builder with RefreshIndicator
-        onRefresh: _refreshEvents,
-        child: FutureBuilder<List<Event>>(
-          future: events,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('NO EVENTS FOUND'));
-            } else {
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              EventDetailPage(eventId: snapshot.data![index].id),
-                        ),
-                      );
-                    },
-                    child: EventCard(event: snapshot.data![index]),
-                  );
-                },
-              );
-            }
-          },
-        ),
+      body: FutureBuilder<List<Event>>(
+        future: events,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No events found'));
+          } else {
+            return ListView.builder(
+              padding: EdgeInsets.all(16.0),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return EventCard(event: snapshot.data![index]);
+              },
+            );
+          }
+        },
       ),
     );
   }

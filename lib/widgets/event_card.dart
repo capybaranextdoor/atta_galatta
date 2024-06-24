@@ -1,37 +1,40 @@
+// widgets/event_card.dart
+
 import 'package:flutter/material.dart';
 import '../model/model.dart';
+import '../screens/event.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
 
-  const EventCard({super.key, required this.event});
+  const EventCard({Key? key, required this.event}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-      child: Row(
-        children: [
-          // Event Image
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(15.0),
-                bottomLeft: Radius.circular(15.0),
-              ),
-              image: DecorationImage(
-                image: NetworkImage(event.imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailsPage(eventId: event.id),
           ),
-          // Event Details
-          Expanded(
-            child: Padding(
+        );
+      },
+      child: Card(
+        color: const Color(0xFF9C4F2E), // Set the card color to HEX: #9C4F2E
+        elevation: 4.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Image.network(
+              event.imageUrl,
+              fit: BoxFit.cover,
+              height: 200.0,
+            ),
+            Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,39 +42,32 @@ class EventCard extends StatelessWidget {
                   Text(
                     event.title,
                     style: const TextStyle(
+                      fontSize: 20.0,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.0,
-                      color: Color(0xFF9C4F2E),
-                    ),
-                  ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    event.subTitle,
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 14.0,
+                      color: Colors.white, // Optional: Adjust text color for better contrast
                     ),
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'Date: ${event.eventDay.toLocal().toString().split(' ')[0]}',
+                    'Organizer: ${event.authors.map((author) => author.name).join(", ")}',
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.0,
+                      fontSize: 16.0,
+                      color: Colors.white, // Optional: Adjust text color for better contrast
                     ),
                   ),
+                  const SizedBox(height: 8.0),
                   Text(
-                    'Time: ${event.startTime} - ${event.endTime}',
+                    'Date & Time: ${event.eventDay.day}/${event.eventDay.month}/${event.eventDay.year}, ${event.startTime} - ${event.endTime}',
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.0,
+                      fontSize: 16.0,
+                      color: Colors.white, // Optional: Adjust text color for better contrast
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
