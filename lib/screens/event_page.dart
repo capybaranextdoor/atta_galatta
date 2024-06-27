@@ -5,7 +5,7 @@ import '../widgets/event_card.dart';
 import 'event_details.dart';
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({super.key});
+  const EventsPage({Key? key}) : super(key: key);
 
   @override
   _EventsPageState createState() => _EventsPageState();
@@ -14,12 +14,12 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   final ApiService apiService = ApiService();
   late Future<List<Event>> events;
-  DateTime selectedDate = DateTime(2024, 5, 1);
+  DateTime selectedDate = DateTime.now(); // Use present day
 
   @override
   void initState() {
     super.initState();
-    // Call fetchEvents function with selectedDate
+    // Fetch events for the present day
     events = apiService.fetchEvents(date: selectedDate);
   }
 
@@ -48,7 +48,7 @@ class _EventsPageState extends State<EventsPage> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        // Call fetchEvents function with updated selectedDate
+        // Fetch events for the updated selectedDate
         events = apiService.fetchEvents(date: selectedDate);
       });
     }
@@ -68,81 +68,16 @@ class _EventsPageState extends State<EventsPage> {
         backgroundColor: const Color(0xFF9C4F2E),
         title: const Text(
           'Events',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: _selectDate,
           ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Implement search functionality
-            },
-          ),
         ],
       ),
-      drawer: Drawer(
-        child: Container(
-          color: const Color(0xff242E3B),
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Color(0xFF9C4F2E),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                child: Text(
-                  'ATTA GALATTA',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.info,
-                  color: Colors.white,
-                ),
-                title: const Text(
-                  'About Us',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/about-us');
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.contact_mail,
-                  color: Colors.white,
-                ),
-                title: const Text(
-                  'Contact Us',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/contact-us');
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
       body: RefreshIndicator(
-        // Wrap your ListView.builder with RefreshIndicator
         onRefresh: _refreshEvents,
         child: FutureBuilder<List<Event>>(
           future: events,
@@ -150,9 +85,14 @@ class _EventsPageState extends State<EventsPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return Center(child: Text('No Network Found'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('NO EVENTS FOUND'));
+              return Center(
+                child: Text(
+                  'No Events Today:(',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              );
             } else {
               return ListView.builder(
                 padding: const EdgeInsets.all(16.0),

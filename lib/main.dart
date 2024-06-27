@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screens/about_us.dart';
 import 'screens/contact_us.dart';
-
 import 'screens/event_page.dart';
-import 'screens/homescreen.dart';
+import 'screens/homescreen.dart'; // Import HomeScreen
+import 'screens/splash.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
+        '/home': (context) => const HomeScreen(), // Add HomeScreen route
         '/events': (context) => const EventsPage(),
         '/about-us': (context) => const AboutUsPage(),
         '/contact-us': (context) => const ContactUsPage(),

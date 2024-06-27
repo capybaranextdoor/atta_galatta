@@ -5,18 +5,40 @@ import '../model/model.dart';
 class ApiService {
   final String baseUrl = 'https://attagalatta.com/api/v1';
 
+  Future<List<Event>> fetchAllEvents() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/getallevents.php'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> body = json.decode(response.body);
+        return body.map((dynamic item) => Event.fromJson(item)).toList();
+      } else {
+        throw Exception('Failed to load events');
+      }
+    } catch (e) {
+      throw Exception('Failed to load events: $e');
+    }
+  }
+
   Future<List<Event>> fetchEvents({required DateTime date}) async {
     final startDate = DateTime(date.year, date.month, date.day);
     final endDate = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final url = Uri.parse('$baseUrl/getallevents.php').replace(queryParameters: {
+      'StartDate': startDate.toIso8601String(),
+      'EndDate': endDate.toIso8601String(),
+    });
 
-    final response = await http.get(Uri.parse(
-        '$baseUrl/getallevents.php?StartDate=${startDate.toIso8601String()}&EndDate=${endDate.toIso8601String()}'));
+    try {
+      final response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body) as List;
-      return jsonResponse.map((event) => Event.fromJson(event as Map<String, dynamic>)).toList();
-    } else {
-      throw Exception('Failed to load events');
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResponse = json.decode(response.body) as List<dynamic>;
+        return jsonResponse.map((dynamic event) => Event.fromJson(event as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception('Failed to load events: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load events: $e');
     }
   }
 
@@ -50,16 +72,22 @@ class ApiService {
     }
   }
 
-  Future<List<Event>> fetchUpcomingEvents() async {
-    final response = await http.get(Uri.parse('$baseUrl/getallevents.php'));
+  Future<List<Event>> fetchUpcomingEvents({required int daysAhead}) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime endOfRange = now.add(Duration(days: daysAhead));
+      List<Event> allEvents = await fetchAllEvents();
 
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body) as List;
-      List<Event> events = jsonResponse.map((event) => Event.fromJson(event as Map<String, dynamic>)).toList();
-      events.sort((a, b) => a.eventDay.compareTo(b.eventDay));
-      return events.take(3).toList();
-    } else {
-      throw Exception('Failed to load upcoming events');
+      // Filter events that occur after now and before endOfRange
+      List<Event> upcomingEvents = allEvents.where((event) => event.eventDay.isAfter(now) && event.eventDay.isBefore(endOfRange)).toList();
+
+      // Sort events by eventDay in ascending order
+      upcomingEvents.sort((a, b) => a.eventDay.compareTo(b.eventDay));
+
+      // Return the upcoming events
+      return upcomingEvents;
+    } catch (e) {
+      throw Exception('Failed to load upcoming events: $e');
     }
   }
 }

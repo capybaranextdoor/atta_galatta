@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../model/model.dart';
 import '../services/api_services.dart';
@@ -17,7 +16,9 @@ class EventDetailPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFF9C4F2E),
-        title: Text('Event Details'),
+        title: Text('Event Details', style: TextStyle(
+            fontWeight: FontWeight.bold, color: Colors.white
+          ),),
       ),
       body: FutureBuilder<Event>(
         future: apiService.fetchEventDetailsById(eventId),
@@ -89,13 +90,9 @@ class EventDetailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Html(
-                      data: event.description,
-                      style: {
-                        "p": Style(
-                          fontSize: FontSize(16),
-                        ),
-                      },
+                    Text(
+                      event.description,
+          
                     ),
                     SizedBox(height: 20),
                     if (event.registrationLink != null && event.registrationLink!.isNotEmpty)

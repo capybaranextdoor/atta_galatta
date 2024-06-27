@@ -27,8 +27,8 @@ class ContactUsPage extends StatelessWidget {
             ContactCard(
               icon: FontAwesomeIcons.whatsapp,
               label: 'WhatsApp',
-              contactInfo: '+1234567890',  // Replace with your phone number
-              url: 'https://wa.me/11234567890',  // Replace with your phone number in the correct format
+              contactInfo: '+91 9632510126',  // Replace with your phone number
+              url: 'https://wa.me/919632510126',  // Replace with your phone number in the correct format
             ),
             ContactCard(
               icon: Icons.phone,

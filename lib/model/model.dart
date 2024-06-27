@@ -1,3 +1,6 @@
+
+import 'package:html/parser.dart' show parse;
+
 class Author {
   final String name;
 
@@ -43,6 +46,10 @@ class Event {
     String baseUrl = 'https://attagalatta.com/admin/uploads/events/';
     String fullImageUrl = baseUrl + json['EventImage'];
 
+    // Parse the HTML description to plain text
+    String htmlDescription = json['EventContentDescription'];
+    String plainTextDescription = parseHtmlToPlainText(htmlDescription);
+
     return Event(
       id: json['EventID'],
       title: json['EventTitle'],
@@ -52,8 +59,13 @@ class Event {
       eventDay: DateTime.parse(json['EventDay']),
       startTime: json['EventStartTime'],
       endTime: json['EventEndTime'],
-      description: json['EventContentDescription'],
+      description: plainTextDescription,
       registrationLink: json['RegsiterLink1'],
     );
+  }
+
+  static String parseHtmlToPlainText(String html) {
+    final document = parse(html);
+    return parse(document.body!.text).documentElement!.text;
   }
 }
