@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../model/model.dart';
+import '../model/event.dart';
 import '../services/api_services.dart';
 import '../widgets/event_card.dart';
+import 'event_details.dart';
 
 class EventsPage extends StatefulWidget {
+  const EventsPage({Key? key}) : super(key: key);
+
   @override
   _EventsPageState createState() => _EventsPageState();
 }
@@ -11,64 +14,108 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   final ApiService apiService = ApiService();
   late Future<List<Event>> events;
-  DateTime startDate = DateTime(2024, 5, 1);
-  DateTime endDate = DateTime(2024, 5, 31);
+  DateTime selectedDate = DateTime.now(); // Use present day
 
   @override
   void initState() {
     super.initState();
-    events = apiService.fetchEvents(startDate: startDate, endDate: endDate);
+    // Fetch events for the present day
+    events = apiService.fetchEvents(date: selectedDate);
   }
 
-
-
-  void _selectDateRange() async {
-    final DateTimeRange? picked = await showDateRangePicker(
+  void _selectDate() async {
+    final DateTime? picked = await showDatePicker(
       context: context,
+      initialDate: selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2026),
-      initialDateRange: DateTimeRange(start: startDate, end: endDate),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF9C4F2E), // Header background color
+              onPrimary: Colors.white, // Header text color
+              surface: Colors.white, // Selected date background color
+              onSurface: Colors.black, // Selected date text color
+            ),
+            dialogBackgroundColor:
+                Colors.white, // Background color of the date picker dialog
+          ),
+          child: child!,
+        );
+      },
     );
-    if (picked != null && picked != DateTimeRange(start: startDate, end: endDate)) {
+    if (picked != null && picked != selectedDate) {
       setState(() {
-        startDate = picked.start;
-        endDate = picked.end;
-        events = apiService.fetchEvents(startDate: startDate, endDate: endDate);
+        selectedDate = picked;
+        // Fetch events for the updated selectedDate
+        events = apiService.fetchEvents(date: selectedDate);
       });
     }
+  }
+
+  Future<void> _refreshEvents() async {
+    setState(() {
+      // Reset the events Future to trigger refetching of events
+      events = apiService.fetchEvents(date: selectedDate);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Events'),
+        backgroundColor: const Color(0xFF9C4F2E),
+        title: const Text(
+          'Events',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: _selectDateRange,
+            icon: const Icon(Icons.calendar_today),
+            onPressed: _selectDate,
+            color:Colors.white
           ),
         ],
       ),
-      body: FutureBuilder<List<Event>>(
-        future: events,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No events found'));
-          } else {
-            return ListView.builder(
-              padding: EdgeInsets.all(16.0),
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return EventCard(event: snapshot.data![index]);
-              },
-            );
-          }
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshEvents,
+        child: FutureBuilder<List<Event>>(
+          future: events,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('No Network Found'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(
+                child: Text(
+                  'No Events Today:(',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              );
+            } else {
+              return ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EventDetailPage(eventId: snapshot.data![index].id),
+                        ),
+                      );
+                    },
+                    child: EventCard(event: snapshot.data![index]),
+                  );
+                },
+              );
+            }
+          },
+        ),
       ),
     );
   }
