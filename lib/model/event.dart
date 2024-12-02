@@ -1,8 +1,8 @@
-<<<<<<<< HEAD:lib/model/event.dart
+
 import 'package:html/parser.dart' show parse;
-========
+
 // models/event.dart
->>>>>>>> 0f0f97f39a2a077c6880ff175be894422ff562b2:lib/model/model.dart
+
 
 class Author {
   final String name;
@@ -26,6 +26,7 @@ class Event {
   final String startTime;
   final String endTime;
   final String description;
+  final String registrationLink;
 
   Event({
     required this.id,
@@ -36,7 +37,7 @@ class Event {
     required this.eventDay,
     required this.startTime,
     required this.endTime,
-    required this.description,
+    required this.description, required this.registrationLink,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -52,20 +53,16 @@ class Event {
       title: json['EventTitle'],
       subTitle: json['EventSubTitle'],
       authors: authorList,
-<<<<<<<< HEAD:lib/model/event.dart
-      imageUrl: fullImageUrl,
+
+      imageUrl: "",
       eventDay: DateTime.parse(json['EventDay']),
       startTime: json['EventStartTime'],
       endTime: json['EventEndTime'],
       description: plainTextDescription,
       registrationLink: json['RegsiterLink1'],
-========
-      imageUrl: 'https://attagalatta.com/images/${json['EventImage']}',
-      eventDay: DateTime.parse(json['EventDay']),
-      startTime: json['EventStartTime'],
-      endTime: json['EventEndTime'],
-      description: json['EventContentDescription'],
->>>>>>>> 0f0f97f39a2a077c6880ff175be894422ff562b2:lib/model/model.dart
+      
+
+      
     );
   }
 

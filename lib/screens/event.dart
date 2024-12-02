@@ -19,7 +19,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   @override
   void initState() {
     super.initState();
-    futureEvent = ApiService().fetchEventDetailsById(widget.eventId);
+    //futureEvent = ApiService().fetchEventDetailsById(widget.eventId);
   }
 
   @override

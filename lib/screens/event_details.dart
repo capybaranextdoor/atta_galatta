@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../model/event.dart';
-import '../model/event.dart';
+
 import '../services/api_services.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/intl.dart';
+
 
 class EventDetailPage extends StatelessWidget {
   final String eventId;
@@ -29,11 +29,6 @@ class EventDetailPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFF9C4F2E),
-        title: Text('Event Details', style: TextStyle(
-            fontWeight: FontWeight.bold, color: Colors.white
-          ),),
-          iconTheme: const IconThemeData(color: Colors.white),
-       
         title: Text('Event Details', style: TextStyle(
             fontWeight: FontWeight.bold, color: Colors.white
           ),),
@@ -65,7 +60,7 @@ class EventDetailPage extends StatelessWidget {
                     Text(
                       event.title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                     
                         fontWeight: FontWeight.bold,
                         color: const Color(0xFF9C4F2E),
                       ),
@@ -92,7 +87,7 @@ class EventDetailPage extends StatelessWidget {
                         children: [
                           Text(
                             '${_formatDate(event.eventDay)}',
-                            '${_formatDate(event.eventDay)}',
+                           
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -102,7 +97,7 @@ class EventDetailPage extends StatelessWidget {
                           SizedBox(height: 10),
                           Text(
                             '${_formatTime(event.startTime)} - ${_formatTime(event.endTime)}',
-                            '${_formatTime(event.startTime)} - ${_formatTime(event.endTime)}',
+                            
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -113,9 +108,7 @@ class EventDetailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Text(
-                      event.description,
-          
+  
                     Text(
                       event.description,
           
