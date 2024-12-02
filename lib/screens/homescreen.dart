@@ -3,13 +3,24 @@ import '../model/event.dart';
 import '../services/api_services.dart';
 import '../widgets/event_card.dart';
 import 'event_details.dart';
+import '../model/event.dart';
+import '../services/api_services.dart';
+import '../widgets/event_card.dart';
+import 'event_details.dart';
 
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ApiService apiService = ApiService();
+  late Future<List<Event>> events;
 
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService apiService = ApiService();
@@ -18,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    events = apiService.fetchEventsForNextWeek();
     events = apiService.fetchEventsForNextWeek();
   }
 

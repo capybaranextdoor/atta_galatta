@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../model/event.dart';
+import '../model/event.dart';
 import '../services/api_services.dart';
 import '../widgets/event_card.dart';
 import 'event_details.dart';
 
 class EventsPage extends StatefulWidget {
+  const EventsPage({Key? key}) : super(key: key);
   const EventsPage({Key? key}) : super(key: key);
 
   @override
@@ -16,10 +18,14 @@ class _EventsPageState extends State<EventsPage> {
   late Future<List<Event>> events;
   DateTime selectedDate = DateTime.now(); // Use present day
   bool noEventsToday = false; // Track if there are no events today
+  DateTime selectedDate = DateTime.now(); // Use present day
+  bool noEventsToday = false; // Track if there are no events today
 
   @override
   void initState() {
     super.initState();
+    // Fetch events for the present day
+    _fetchEventsForDate(selectedDate);
     // Fetch events for the present day
     _fetchEventsForDate(selectedDate);
   }
@@ -40,6 +46,7 @@ class _EventsPageState extends State<EventsPage> {
               onSurface: Colors.black, // Selected date text color
             ),
             dialogBackgroundColor: Colors.white, // Background color of the date picker dialog
+            dialogBackgroundColor: Colors.white, // Background color of the date picker dialog
           ),
           child: child!,
         );
@@ -50,13 +57,30 @@ class _EventsPageState extends State<EventsPage> {
         selectedDate = picked;
         // Fetch events for the updated selectedDate
         _fetchEventsForDate(selectedDate);
+        // Fetch events for the updated selectedDate
+        _fetchEventsForDate(selectedDate);
       });
     }
   }
 
   Future<void> _refreshEvents() async { 
+  Future<void> _refreshEvents() async { 
     setState(() {
       // Reset the events Future to trigger refetching of events
+      _fetchEventsForDate(selectedDate);
+    });
+  }
+
+  void _fetchEventsForDate(DateTime date) {
+    setState(() {
+      events = apiService.fetchEvents(date: date).then((events) async {
+        if (events.isEmpty) {
+          noEventsToday = true;
+          return await apiService.fetchEventsForNextWeek();
+        }
+        noEventsToday = false;
+        return events;
+      });
       _fetchEventsForDate(selectedDate);
     });
   }
@@ -82,12 +106,15 @@ class _EventsPageState extends State<EventsPage> {
         title: const Text(
           'Events',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: _selectDate,
+            color: Colors.white,
             color: Colors.white,
           ),
         ],
@@ -101,6 +128,7 @@ class _EventsPageState extends State<EventsPage> {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('No Network Found'));
+              return Center(child: Text('No Network Found'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(
                 child: Text(
@@ -108,7 +136,43 @@ class _EventsPageState extends State<EventsPage> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               );
+              return Center(
+                child: Text(
+                  'No Events Today:(',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              );
             } else {
+              return Column(
+                children: [
+                  if (noEventsToday)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'No events today but check out our upcoming events:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EventDetailPage(eventId: snapshot.data![index].id),
+                              ),
+                            );
+                          },
+                          child: EventCard(event: snapshot.data![index]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               return Column(
                 children: [
                   if (noEventsToday)
