@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '../model/model.dart';
+import '../model/event.dart';
 import '../services/api_services.dart';
 import '../widgets/event_card.dart';
 import 'event_details.dart';
-import 'event_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -19,18 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch all events
-    events = apiService.fetchAllEvents();
-  }
-
-  List<Event> _getUpcomingEvents(List<Event> events, {int limit = 4}) {
-    DateTime now = DateTime.now();
-    List<Event> upcomingEvents = events.where((event) {
-      DateTime eventDate = DateTime.parse(event.startTime as String); // Ensure startTime is in the correct format
-      return eventDate.isAfter(now);
-    }).toList();
-    upcomingEvents.sort((a, b) => a.startTime.compareTo(b.startTime));
-    return upcomingEvents.take(limit).toList();
+    events = apiService.fetchEventsForNextWeek();
   }
 
   @override
@@ -39,9 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF9C4F2E),
         title: const Text('Home', style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.event, color: Colors.white), // Icon to navigate to events page
+            icon: const Icon(Icons.event, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/events');
             },
@@ -110,25 +99,26 @@ class _HomeScreenState extends State<HomeScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(fontWeight: FontWeight.bold)));
+            print('Error: ${snapshot.error}');
+            return Center(child: Text('Failed to load events', style: TextStyle(fontWeight: FontWeight.bold)));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Sorry! No Events Found :('));
+            return const Center(child: Text('No Events Today'));
           } else {
-            List<Event> upcomingEvents = _getUpcomingEvents(snapshot.data!);
             return ListView.builder(
               padding: const EdgeInsets.all(16.0),
-              itemCount: upcomingEvents.length,
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
+                final event = snapshot.data![index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EventDetailPage(eventId: upcomingEvents[index].id),
+                        builder: (context) => EventDetailPage(eventId: event.id), // Ensure event.id is not null
                       ),
                     );
                   },
-                  child: EventCard(event: upcomingEvents[index]),
+                  child: EventCard(event: event),
                 );
               },
             );

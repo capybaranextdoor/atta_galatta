@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/model.dart';
+import '../model/event.dart';
 import '../services/api_services.dart';
 import '../widgets/event_card.dart';
 import 'event_details.dart';
@@ -15,12 +15,13 @@ class _EventsPageState extends State<EventsPage> {
   final ApiService apiService = ApiService();
   late Future<List<Event>> events;
   DateTime selectedDate = DateTime.now(); // Use present day
+  bool noEventsToday = false; // Track if there are no events today
 
   @override
   void initState() {
     super.initState();
     // Fetch events for the present day
-    events = apiService.fetchEvents(date: selectedDate);
+    _fetchEventsForDate(selectedDate);
   }
 
   void _selectDate() async {
@@ -38,8 +39,7 @@ class _EventsPageState extends State<EventsPage> {
               surface: Colors.white, // Selected date background color
               onSurface: Colors.black, // Selected date text color
             ),
-            dialogBackgroundColor:
-                Colors.white, // Background color of the date picker dialog
+            dialogBackgroundColor: Colors.white, // Background color of the date picker dialog
           ),
           child: child!,
         );
@@ -49,15 +49,28 @@ class _EventsPageState extends State<EventsPage> {
       setState(() {
         selectedDate = picked;
         // Fetch events for the updated selectedDate
-        events = apiService.fetchEvents(date: selectedDate);
+        _fetchEventsForDate(selectedDate);
       });
     }
   }
 
-  Future<void> _refreshEvents() async {
+  Future<void> _refreshEvents() async { 
     setState(() {
       // Reset the events Future to trigger refetching of events
-      events = apiService.fetchEvents(date: selectedDate);
+      _fetchEventsForDate(selectedDate);
+    });
+  }
+
+  void _fetchEventsForDate(DateTime date) {
+    setState(() {
+      events = apiService.fetchEvents(date: date).then((events) async {
+        if (events.isEmpty) {
+          noEventsToday = true;
+          return await apiService.fetchEventsForNextWeek();
+        }
+        noEventsToday = false;
+        return events;
+      });
     });
   }
 
@@ -70,10 +83,12 @@ class _EventsPageState extends State<EventsPage> {
           'Events',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: _selectDate,
+            color: Colors.white,
           ),
         ],
       ),
@@ -94,23 +109,36 @@ class _EventsPageState extends State<EventsPage> {
                 ),
               );
             } else {
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              EventDetailPage(eventId: snapshot.data![index].id),
-                        ),
-                      );
-                    },
-                    child: EventCard(event: snapshot.data![index]),
-                  );
-                },
+              return Column(
+                children: [
+                  if (noEventsToday)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'No events today but check out our upcoming events:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EventDetailPage(eventId: snapshot.data![index].id),
+                              ),
+                            );
+                          },
+                          child: EventCard(event: snapshot.data![index]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               );
             }
           },

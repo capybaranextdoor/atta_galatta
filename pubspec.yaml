@@ -23,6 +23,7 @@ dependencies:
   table_calendar: any
   url_launcher: ^6.0.13 
   http: ^1.2.1
+  intl: ^0.19.0
   
 
 dev_dependencies:
@@ -38,3 +39,8 @@ flutter:
     - assets/lib3.png
     - assets/backarrow.png
     - assets/logo2.png
+    - assets/logo72.png
+    - assets/logo192.png
+    - assets/logo48.png
+    - assets/logo96.png
+    - assets/logo144.png

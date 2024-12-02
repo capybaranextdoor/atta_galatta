@@ -1,4 +1,3 @@
-
 import 'package:html/parser.dart' show parse;
 
 class Author {
@@ -55,7 +54,7 @@ class Event {
       title: json['EventTitle'],
       subTitle: json['EventSubTitle'],
       authors: authorList,
-      imageUrl: fullImageUrl, // Use the full URL for the image
+      imageUrl: fullImageUrl,
       eventDay: DateTime.parse(json['EventDay']),
       startTime: json['EventStartTime'],
       endTime: json['EventEndTime'],
@@ -64,8 +63,16 @@ class Event {
     );
   }
 
+  get eventId => null;
+
+  get date => null;
+
   static String parseHtmlToPlainText(String html) {
     final document = parse(html);
     return parse(document.body!.text).documentElement!.text;
   }
+
+  DateTime get startTimeAsDateTime => DateTime.parse(startTime);
+
+  DateTime get endTimeAsDateTime => DateTime.parse(endTime);
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../services/api_services.dart';
-import '../model/model.dart';
+import '../model/event.dart';
 
 class CustomCalendar extends StatefulWidget {
   const CustomCalendar({super.key});

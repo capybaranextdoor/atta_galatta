@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
-import '../model/model.dart';
+import 'package:intl/intl.dart';
+import '../model/event.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
 
   const EventCard({super.key, required this.event});
+
+  String _formatDate(DateTime date) {
+    return DateFormat('d MMMM').format(date);
+  }
+
+  String _formatTime(String time) {
+    final DateTime parsedTime = DateTime.parse('1970-01-01T$time');
+    return DateFormat('h:mm a').format(parsedTime);
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -54,17 +64,19 @@ class EventCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    'Date: ${event.eventDay.toLocal().toString().split(' ')[0]}',
+                    '${_formatDate(event.eventDay)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14.0,
+                      color: Color(0xFF9C4F2E)
                     ),
                   ),
                   Text(
-                    'Time: ${event.startTime} - ${event.endTime}',
+                    '${_formatTime(event.startTime)} - ${_formatTime(event.endTime)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14.0,
+                      color: Color(0xFF9C4F2E)
                     ),
                   ),
                 ],
